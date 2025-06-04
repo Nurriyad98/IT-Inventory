@@ -63,28 +63,8 @@
     /* Content */
     .content {
       flex: 1;
-      padding: 30px;
-      overflow-y: auto;
-    }
-
-    .section {
-      display: none;
-    }
-
-    .section.active {
-      display: block;
-    }
-
-    h3 {
-      margin-bottom: 15px;
-      color: #2d3436;
-    }
-
-    .card {
-      padding: 20px;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+      padding: 0;
+      overflow: hidden; /* iframe will fill content */
     }
   </style>
 </head>
@@ -94,108 +74,18 @@
     <div>
       <h2>📋 IT Inventory</h2>
       <div class="menu">
-        <a onclick="showSection('user')" class="active">👥 User Info View</a>
-        <a onclick="showSection('mail')">📮 Mail List</a>
-        <a onclick="showSection('camera')">📷 Camera</a>
-        <a onclick="showSection('printer')">🖨 Printer</a>
-        <a onclick="showSection('product')">📦 Product Inventory</a>
+        <a href="user-info.html" target="mainFrame" class="active">👥 User Info View</a>
+        <a href="mail-list.html" target="mainFrame">📮 Mail List</a>
+        <a href="camera.html" target="mainFrame">📷 Camera</a>
+        <a href="printer.html" target="mainFrame">🖨 Printer</a>
+        <a href="product.html" target="mainFrame">📦 Product Inventory</a>
       </div>
     </div>
     <div class="footer">© 2025 IT Dept</div>
   </div>
 
   <div class="content">
-    <div id="user" class="section active">
-      <h3>👥 User Info View</h3>
-      <div class="card" id="userInfo">Loading user info...</div>
-    </div>
-
-    <div id="mail" class="section">
-  <h3>📮 Mail List Add/View</h3>
-
-  <input type="text" id="searchMail" placeholder="Search mail..." style="margin-bottom: 10px; padding: 8px; width: 100%; max-width: 400px;">
-
-  <table id="mailTable" style="width: 100%; border-collapse: collapse;">
-    <thead>
-      <tr id="mailHeaderRow" style="background-color: #007bff; color: white;"></tr>
-    </thead>
-    <tbody id="mailTableBody"></tbody>
-  </table>
-</div>
-
-<script>
-  const mailSheetID = "1Vk9JhX5GngmLIAPYA7gw26RrvkSnhSuZ";
-  const mailGID = "25319899";
-  const mailUrl = `https://docs.google.com/spreadsheets/d/${mailSheetID}/gviz/tq?tqx=out:json&gid=${mailGID}`;
-
-  fetch(mailUrl)
-    .then(res => res.text())
-    .then(data => {
-      const jsonData = JSON.parse(data.substring(47).slice(0, -2));
-      const cols = jsonData.table.cols;
-      const rows = jsonData.table.rows;
-
-      const headerRow = document.getElementById("mailHeaderRow");
-      const tableBody = document.getElementById("mailTableBody");
-
-      // Header
-      cols.forEach(col => {
-        if (col.label) {
-          const th = document.createElement("th");
-          th.textContent = col.label;
-          th.style.border = "1px solid #ddd";
-          th.style.padding = "10px";
-          headerRow.appendChild(th);
-        }
-      });
-
-      // Rows
-      rows.forEach(row => {
-        const tr = document.createElement("tr");
-        row.c.forEach(cell => {
-          const td = document.createElement("td");
-          td.textContent = cell ? cell.v : "";
-          td.style.border = "1px solid #ddd";
-          td.style.padding = "10px";
-          tr.appendChild(td);
-        });
-        tableBody.appendChild(tr);
-      });
-
-      // Search
-      document.getElementById("searchMail").addEventListener("keyup", function () {
-        const filter = this.value.toLowerCase();
-        const trs = tableBody.getElementsByTagName("tr");
-        for (let i = 0; i < trs.length; i++) {
-          const tds = trs[i].getElementsByTagName("td");
-          let show = false;
-          for (let j = 0; j < tds.length; j++) {
-            if (tds[j].textContent.toLowerCase().indexOf(filter) > -1) {
-              show = true;
-              break;
-            }
-          }
-          trs[i].style.display = show ? "" : "none";
-        }
-      });
-    });
-</script>
-
-
-    <div id="camera" class="section">
-      <h3>📷 Camera Add/View</h3>
-      <div class="card">Camera details go here...</div>
-    </div>
-
-    <div id="printer" class="section">
-      <h3>🖨 Printer Add/View</h3>
-      <div class="card">Printer information here...</div>
-    </div>
-
-    <div id="product" class="section">
-      <h3>📦 Product Inventory</h3>
-      <div class="card">Product inventory table or form...</div>
-    </div>
+    <iframe id="mainFrame" name="mainFrame" src="user-info.html" style="width: 100%; height: 100vh; border: none;"></iframe>
   </div>
 
   <!-- Firebase -->
@@ -205,29 +95,9 @@
   <script src="firebase-config.js"></script>
 
   <script>
-    // Handle section switching
-    function showSection(id) {
-      document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
-      document.querySelectorAll('.menu a').forEach(a => a.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-      event.target.classList.add('active');
-    }
-
     // Firebase auth check
     firebase.auth().onAuthStateChanged(user => {
-      if (user) {
-        firebase.database().ref("Users/" + user.uid).once('value').then(snapshot => {
-          const data = snapshot.val();
-          if (data) {
-            document.getElementById("userInfo").innerHTML = `
-              <strong>Email:</strong> ${data.email}<br>
-              <strong>Office ID:</strong> ${data.officeId}
-            `;
-          } else {
-            document.getElementById("userInfo").innerHTML = "User data not found.";
-          }
-        });
-      } else {
+      if (!user) {
         window.location.href = "index.html";
       }
     });
