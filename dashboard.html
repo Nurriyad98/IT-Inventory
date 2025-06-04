@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard - IT Inventory</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h2>Welcome to IT Inventory Dashboard</h2>
+    <div id="userInfo" style="margin-bottom: 20px;"></div>
+
+    <div class="card-grid">
+      <div class="card" onclick="goTo('mail.html')">📮 Mail List</div>
+      <div class="card" onclick="goTo('camera.html')">📷 Camera</div>
+      <div class="card" onclick="goTo('printer.html')">🖨 Printer</div>
+      <div class="card" onclick="goTo('product.html')">📦 Product Inventory</div>
+    </div>
+
+    <button onclick="logout()" style="margin-top: 30px;">Logout</button>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <script src="firebase-config.js"></script>
+
+  <script>
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        firebase.database().ref("Users/" + user.uid).once('value').then(snapshot => {
+          const data = snapshot.val();
+          document.getElementById("userInfo").innerHTML = `
+            <strong>Email:</strong> ${data.email}<br>
+            <strong>Office ID:</strong> ${data.officeId}
+          `;
+        });
+      } else {
+        window.location.href = "index.html"; // Not logged in
+      }
+    });
+
+    function goTo(page) {
+      window.location.href = page;
+    }
+
+    function logout() {
+      firebase.auth().signOut().then(() => {
+        window.location.href = "index.html";
+      });
+    }
+  </script>
+
+  <style>
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .card {
+      background: #1f4037;
+      color: white;
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+      font-size: 18px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .card:hover {
+      background: #14532d;
+    }
+  </style>
+</body>
+</html>
