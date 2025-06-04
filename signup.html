@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sign Up - IT Inventory</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h2>Sign Up</h2>
+    <input type="email" id="signupEmail" placeholder="Email">
+    <input type="password" id="signupPassword" placeholder="Password">
+    <input type="text" id="officeId" placeholder="Office ID">
+    <button onclick="signup()">Sign Up</button>
+    <a href="index.html">Already have an account? Login</a>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script>
+    function signup() {
+      const email = document.getElementById('signupEmail').value;
+      const password = document.getElementById('signupPassword').value;
+      const officeId = document.getElementById('officeId').value;
+
+      firebase.auth().createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          const userId = userCredential.user.uid;
+          firebase.database().ref('Users/' + userId).set({
+            email: email,
+            officeId: officeId
+          }).then(() => {
+            alert('Signup successful!');
+            window.location.href = 'index.html';
+          });
+        })
+        .catch(error => {
+          alert("Signup failed: " + error.message);
+        });
+    }
+  </script>
+</body>
+</html>
