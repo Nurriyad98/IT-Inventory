@@ -60,8 +60,8 @@
 </table>
 
 <script>
-  const sheetID = "1Vk9JhX5GngmLIAPYA7gw26RrvkSnhSuZ"; // তোমার শিট আইডি
-  const gid = "25319899"; // তোমার গুগল শিটের GID
+  const sheetID = "1Vk9JhX5GngmLIAPYA7gw26RrvkSnhSuZ"; // তোমার গুগল শিট আইডি
+  const gid = "25319899"; // শিট ট্যাবের GID
   const url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json&gid=${gid}`;
 
   fetch(url)
@@ -73,10 +73,10 @@
 
       const tableBody = document.getElementById("tableBody");
 
-      // দরকারি কলামগুলো, যেগুলো শো করবা
+      // যেসব কলাম দেখাতে চাই, যথাক্রমে
       const neededCols = ["SL No", "Display Name", "Mail Address", "Password", "Department", "Mobile Number", "Designation", "User Type"];
 
-      // কলাম নাম থেকে তাদের ইনডেক্স বের করব
+      // কলাম নাম অনুযায়ী ইনডেক্স ম্যাপ করবো
       const colIndexMap = {};
       cols.forEach((col, idx) => {
         if (col.label) {
@@ -84,12 +84,14 @@
         }
       });
 
-      // রো লুপ - বড় হেডার বাদ দিয়ে এবং SL No নাম্বার না হলে স্কিপ করবে
+      // রো গুলো প্রক্রিয়া করব
       rows.forEach(row => {
         const cells = row.c;
+
+        // SL No আছে কিনা এবং সেটা সংখ্যা কিনা চেক
         const slCell = cells[colIndexMap["SL No"]];
         if (!slCell || isNaN(slCell.v)) {
-          // SL No যদি না থাকে বা নাম্বার না হয়, স্কিপ করো
+          // যদি না থাকে বা নাম্বার না হয়, সেগুলো স্কিপ করো
           return;
         }
 
