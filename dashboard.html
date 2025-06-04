@@ -111,9 +111,76 @@
     </div>
 
     <div id="mail" class="section">
-      <h3>📮 Mail List Add/View</h3>
-      <div class="card">Mail content goes here...</div>
-    </div>
+  <h3>📮 Mail List Add/View</h3>
+
+  <input type="text" id="searchMail" placeholder="Search mail..." style="margin-bottom: 10px; padding: 8px; width: 100%; max-width: 400px;">
+
+  <table id="mailTable" style="width: 100%; border-collapse: collapse;">
+    <thead>
+      <tr id="mailHeaderRow" style="background-color: #007bff; color: white;"></tr>
+    </thead>
+    <tbody id="mailTableBody"></tbody>
+  </table>
+</div>
+
+<script>
+  const mailSheetID = "1Vk9JhX5GngmLIAPYA7gw26RrvkSnhSuZ";
+  const mailGID = "25319899";
+  const mailUrl = `https://docs.google.com/spreadsheets/d/${mailSheetID}/gviz/tq?tqx=out:json&gid=${mailGID}`;
+
+  fetch(mailUrl)
+    .then(res => res.text())
+    .then(data => {
+      const jsonData = JSON.parse(data.substring(47).slice(0, -2));
+      const cols = jsonData.table.cols;
+      const rows = jsonData.table.rows;
+
+      const headerRow = document.getElementById("mailHeaderRow");
+      const tableBody = document.getElementById("mailTableBody");
+
+      // Header
+      cols.forEach(col => {
+        if (col.label) {
+          const th = document.createElement("th");
+          th.textContent = col.label;
+          th.style.border = "1px solid #ddd";
+          th.style.padding = "10px";
+          headerRow.appendChild(th);
+        }
+      });
+
+      // Rows
+      rows.forEach(row => {
+        const tr = document.createElement("tr");
+        row.c.forEach(cell => {
+          const td = document.createElement("td");
+          td.textContent = cell ? cell.v : "";
+          td.style.border = "1px solid #ddd";
+          td.style.padding = "10px";
+          tr.appendChild(td);
+        });
+        tableBody.appendChild(tr);
+      });
+
+      // Search
+      document.getElementById("searchMail").addEventListener("keyup", function () {
+        const filter = this.value.toLowerCase();
+        const trs = tableBody.getElementsByTagName("tr");
+        for (let i = 0; i < trs.length; i++) {
+          const tds = trs[i].getElementsByTagName("td");
+          let show = false;
+          for (let j = 0; j < tds.length; j++) {
+            if (tds[j].textContent.toLowerCase().indexOf(filter) > -1) {
+              show = true;
+              break;
+            }
+          }
+          trs[i].style.display = show ? "" : "none";
+        }
+      });
+    });
+</script>
+
 
     <div id="camera" class="section">
       <h3>📷 Camera Add/View</h3>
