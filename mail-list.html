@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Mail List</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    h2 {
+      text-align: center;
+    }
+    #search {
+      margin-bottom: 10px;
+      padding: 8px;
+      width: 100%;
+      max-width: 400px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #007bff;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+    tr:hover {
+      background-color: #d1ecf1;
+    }
+  </style>
+</head>
+<body>
+
+<h2>📮 Mail List</h2>
+<input type="text" id="search" placeholder="Search by name, email, department...">
+
+<table id="mailTable">
+  <thead>
+    <tr id="headerRow"></tr>
+  </thead>
+  <tbody id="tableBody"></tbody>
+</table>
+
+<script>
+  const sheetID = "1Vk9JhX5GngmLIAPYA7gw26RrvkSnhSuZ";
+  const gid = "25319899"; // replace with your sheet GID
+  const url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json&gid=${gid}`;
+
+  fetch(url)
+    .then(res => res.text())
+    .then(data => {
+      const jsonData = JSON.parse(data.substring(47).slice(0, -2));
+      const cols = jsonData.table.cols;
+      const rows = jsonData.table.rows;
+
+      const headerRow = document.getElementById("headerRow");
+      const tableBody = document.getElementById("tableBody");
+
+      // Set table headers
+      cols.forEach(col => {
+        if (col.label) {
+          const th = document.createElement("th");
+          th.textContent = col.label;
+          headerRow.appendChild(th);
+        }
+      });
+
+      // Set table rows
+      rows.forEach(row => {
+        const tr = document.createElement("tr");
+        row.c.forEach(cell => {
+          const td = document.createElement("td");
+          td.textContent = cell ? cell.v : "";
+          tr.appendChild(td);
+        });
+        tableBody.appendChild(tr);
+      });
+
+      // Add search functionality
+      document.getElementById("search").addEventListener("keyup", function () {
+        const filter = this.value.toLowerCase();
+        const trs = tableBody.getElementsByTagName("tr");
+        for (let i = 0; i < trs.length; i++) {
+          const tds = trs[i].getElementsByTagName("td");
+          let show = false;
+          for (let j = 0; j < tds.length; j++) {
+            if (tds[j].textContent.toLowerCase().indexOf(filter) > -1) {
+              show = true;
+              break;
+            }
+          }
+          trs[i].style.display = show ? "" : "none";
+        }
+      });
+    });
+</script>
+
+</body>
+</html>
