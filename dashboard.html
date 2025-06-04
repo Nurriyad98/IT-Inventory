@@ -25,30 +25,30 @@
   <script src="firebase-config.js"></script>
 
   <script>
-    firebase.auth().onAuthStateChanged(user => {
-      if (user) {
-        firebase.database().ref("Users/" + user.uid).once('value').then(snapshot => {
-          const data = snapshot.val();
+  firebase.auth().onAuthStateChanged(user => {
+    if (user) {
+      console.log("User logged in:", user.email);
+      firebase.database().ref("Users/" + user.uid).once('value').then(snapshot => {
+        const data = snapshot.val();
+        console.log("User data from DB:", data);
+        if (data) {
           document.getElementById("userInfo").innerHTML = `
             <strong>Email:</strong> ${data.email}<br>
             <strong>Office ID:</strong> ${data.officeId}
           `;
-        });
-      } else {
-        window.location.href = "index.html"; // Not logged in
-      }
-    });
-
-    function goTo(page) {
-      window.location.href = page;
-    }
-
-    function logout() {
-      firebase.auth().signOut().then(() => {
-        window.location.href = "index.html";
+        } else {
+          document.getElementById("userInfo").innerHTML = "User data not found in database.";
+        }
+      }).catch(err => {
+        console.error("Error fetching user data:", err);
       });
+    } else {
+      console.log("No user logged in, redirecting...");
+      window.location.href = "index.html";
     }
-  </script>
+  });
+</script>
+
 
   <style>
     .card-grid {
